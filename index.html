@@ -32,10 +32,17 @@
         </label>
 
         <nav class="nav-links">
-          <a href="#home" class="nav-link active">Home</a>
-          <a href="#favorites" class="nav-link">Favorites</a>
+          <a href="#home" class="nav-link nav-icon-link active" aria-label="Home">
+            <i class="fa-solid fa-house"></i>
+            <span class="sr-only">Home</span>
+          </a>
+          <a href="#favorites" class="nav-link nav-icon-link" aria-label="Favorites">
+            <i class="fa-solid fa-heart"></i>
+            <span class="sr-only">Favorites</span>
+          </a>
           <button class="theme-button" type="button" aria-label="Theme toggle">
             <i class="fa-solid fa-moon"></i>
+            <span class="sr-only">Toggle theme</span>
           </button>
         </nav>
       </header>

@@ -50,8 +50,8 @@ function attachEventHandlers() {
 
   if (searchInput) {
     searchInput.addEventListener("input", handleSearchInput);
-    document.addEventListener("click", handleClickOutsideSuggestions);
   }
+  document.addEventListener("click", handleDocumentClick);
 
   if (searchSuggestions) {
     searchSuggestions.addEventListener("click", handleSuggestionClick);
@@ -293,10 +293,21 @@ function handleSuggestionClick(event) {
   performSearch(title);
 }
 
-function handleClickOutsideSuggestions(event) {
-  const clickedInside = event.target.closest(".search-panel");
-  if (!clickedInside) {
+function handleDocumentClick(event) {
+  const clickedInsideSearch = event.target.closest(".search-panel");
+  if (!clickedInsideSearch) {
     hideSuggestions();
+  }
+
+  const navToggle = document.querySelector("#nav-toggle");
+  const clickedInsideNav = event.target.closest(".nav-shell");
+  const clickedNavLink = event.target.closest(".nav-link");
+  const clickedThemeButton = event.target.closest(".theme-button");
+
+  if (navToggle && navToggle.checked) {
+    if (!clickedInsideNav || clickedNavLink || clickedThemeButton) {
+      navToggle.checked = false;
+    }
   }
 }
 
