@@ -1,5 +1,3 @@
-import { TMDB_API_KEY } from "./config.js";
-
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 
@@ -16,23 +14,17 @@ const GENRE_MAP = {
   10749: "Romance"
 };
 
-function ensureApiKey() {
-  if (!TMDB_API_KEY || TMDB_API_KEY === "YOUR_TMDB_API_KEY") {
-    throw new Error("TMDB API key is missing. Set TMDB_API_KEY inside js/api.js before using the app.");
-  }
-}
-
 function buildQueryParams(params = {}) {
-  const query = new URLSearchParams({ api_key: TMDB_API_KEY, language: "en-US", ...params });
+  const query = new URLSearchParams(params);
   return query.toString();
 }
 
 async function request(endpoint, params = {}) {
-  ensureApiKey();
-  const url = `${TMDB_BASE_URL}${endpoint}?${buildQueryParams(params)}`;
+  const pathParam = encodeURIComponent(endpoint);
+  const url = `/api/tmdb?path=${pathParam}&${buildQueryParams(params)}`;
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`TMDB request failed: ${response.status} ${response.statusText}`);
+    throw new Error(`TMDB proxy request failed: ${response.status} ${response.statusText}`);
   }
   return response.json();
 }
