@@ -1,0 +1,37 @@
+﻿@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.12);
+  }
+}
+
+.hero-card,
+.empty-state-card,
+.footer-shell {
+  animation: fadeIn 0.6s ease both;
+}
+
+.button-primary:hover,
+.button-primary:focus-visible,
+.nav-link:hover,
+.nav-link:focus-visible,
+.chip:hover,
+.genre-chip:hover,
+.social-icons a:hover,
+.theme-button:hover {
+  animation: glowPulse 1.2s ease;
+}

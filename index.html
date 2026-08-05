@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpotexTV</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="css/animations.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="nav-shell glass-card" aria-label="Primary navigation">
+        <div class="nav-brand">
+          <span class="brand-icon"><i class="fa-solid fa-play"></i></span>
+          <span class="brand-text">Spotex TV</span>
+        </div>
+
+        <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Open menu" />
+        <label for="nav-toggle" class="nav-toggle-button" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </label>
+
+        <nav class="nav-links">
+          <a href="#home" class="nav-link active">Home</a>
+          <a href="#favorites" class="nav-link">Favorites</a>
+          <button class="theme-button" type="button" aria-label="Theme toggle">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </nav>
+      </header>
+
+      <main class="content-shell">
+        <section id="home">
+          <section class="hero-section">
+            <div class="hero-card glass-card">
+              <div class="hero-copy">
+                <span class="hero-badge">Cinematic discovery for every mood</span>
+                <h1>Discover Your Next Favorite Movie</h1>
+                <p class="hero-description">
+                  Explore a premium home for movie discovery with beautiful spacing, thoughtful
+                  typography, and calm content flow.
+                </p>
+
+                <form class="search-panel">
+                  <div class="search-input-shell">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input
+                      class="search-input"
+                      type="text"
+                      autocomplete="chrome-off-search-suggestions"
+                      placeholder="Search movies, actors, or genres"
+                      aria-label="Search movies"
+                    />
+                  </div>
+                  <div class="search-suggestions hidden"></div>
+                  <button class="button button-primary" type="submit">Search</button>
+                </form>
+
+                <div class="recent-shell">
+                  <div class="recent-header">
+                    <p class="section-label">Recent searches</p>
+                    <p class="section-note">Popular searches for quick inspiration.</p>
+                  </div>
+                  <div class="chip-row">
+                    <span class="chip">Batman</span>
+                    <span class="chip">Inception</span>
+                    <span class="chip">Avatar</span>
+                    <span class="chip">Interstellar</span>
+                    <span class="chip">Titanic</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="hero-visual">
+                <div class="visual-card trending-card">
+                  <div class="visual-overlay"></div>
+                  <div class="visual-badge">HOT</div>
+                  <div class="visual-title trending-title">Midnight Escape</div>
+                  <p class="visual-copy trending-overview">Stylish recommendations, ready when you are.</p>
+                  <div class="visual-tags trending-tags"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="genres-section">
+            <div class="section-header">
+              <div>
+                <p class="section-label">Browse</p>
+                <h2>Popular genres</h2>
+              </div>
+              <p class="section-note">Tap into genres that match your mood and discover new favorites.</p>
+            </div>
+
+            <div class="genre-grid">
+              <button class="genre-chip" type="button" data-genre-id="28">Action</button>
+              <button class="genre-chip" type="button" data-genre-id="12">Adventure</button>
+              <button class="genre-chip" type="button" data-genre-id="35">Comedy</button>
+              <button class="genre-chip" type="button" data-genre-id="18">Drama</button>
+              <button class="genre-chip" type="button" data-genre-id="878">Sci-Fi</button>
+              <button class="genre-chip" type="button" data-genre-id="27">Horror</button>
+              <button class="genre-chip" type="button" data-genre-id="16">Animation</button>
+              <button class="genre-chip" type="button" data-genre-id="14">Fantasy</button>
+              <button class="genre-chip" type="button" data-genre-id="80">Crime</button>
+              <button class="genre-chip" type="button" data-genre-id="10749">Romance</button>
+            </div>
+          </section>
+
+          <section class="empty-state-section">
+            <div class="popular-grid"></div>
+          </section>
+        </section>
+
+        <section id="loading" class="hidden">
+          <div class="container loading-panel glass-card">
+            <div class="spinner"></div>
+            <div>
+              <h2>Loading movies...</h2>
+              <p>Searching TMDB for the latest picks.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="results" class="hidden">
+          <div class="container">
+            <div class="section-heading-row">
+              <div>
+                <h2>Search results</h2>
+                <p class="results-meta"></p>
+              </div>
+              <button class="button button-secondary results-back" type="button">Back to home</button>
+            </div>
+            <div class="movie-grid"></div>
+          </div>
+        </section>
+
+        <section id="details" class="hidden">
+          <div class="container detail-page glass-card">
+            <div class="detail-head">
+              <button class="button button-secondary details-back" type="button">Back</button>
+              <span class="detail-score"></span>
+            </div>
+            <div class="detail-body">
+              <div class="detail-poster"></div>
+              <div class="detail-info">
+                <h1 class="detail-title"></h1>
+                <p class="detail-subtitle"></p>
+                <p class="detail-overview"></p>
+                <div class="detail-meta-row">
+                  <div>
+                    <p class="meta-label">Genres</p>
+                    <span class="detail-genres"></span>
+                  </div>
+                  <div>
+                    <p class="meta-label">Director</p>
+                    <span class="detail-director"></span>
+                  </div>
+                </div>
+                <div class="detail-meta-row">
+                  <div>
+                    <p class="meta-label">Actors</p>
+                    <span class="detail-actors"></span>
+                  </div>
+                </div>
+                <button class="button button-primary detail-favorite-button" type="button">Add to Favorites</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="favorites" class="hidden">
+          <div class="container">
+            <div class="section-heading-row">
+              <div>
+                <h2>My favorites</h2>
+                <p>Saved movies show up here.</p>
+              </div>
+            </div>
+            <div class="favorites-grid"></div>
+            <div class="favorites-empty hidden">
+              <div class="empty-state-illustration">
+                <i class="fa-solid fa-heart"></i>
+              </div>
+              <h3>No favorites yet</h3>
+              <p>Save movies while browsing and they will appear here.</p>
+              <button class="button button-primary favorites-discover" type="button">Discover movies</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="notfound" class="hidden">
+          <div class="container notfound-panel glass-card">
+            <div class="notfound-illustration">
+              <i class="fa-solid fa-face-smile-wink"></i>
+            </div>
+            <h2>No movies found</h2>
+            <p>Try another search term or select a genre.</p>
+            <button class="button button-primary notfound-button" type="button">Search again</button>
+          </div>
+        </section>
+      </main>
+
+      <button class="back-to-top" type="button" aria-label="Back to top">
+        <i class="fa-solid fa-chevron-up"></i>
+      </button>
+
+      <footer class="footer-shell glass-card">
+        <div class="footer-brand">
+          <span class="brand-icon small"><i class="fa-solid fa-play"></i></span>
+          <span class="brand-text">Spotex TV</span>
+        </div>
+        <p class="footer-copy">
+          A premium movie discovery experience built for clean browsing and beautiful pacing.
+        </p>
+        <div class="social-icons">
+          <a href="https://x.com/emmanuel_spotex?s=11" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+          <a href="https://www.instagram.com/emmanuel_spotexchange?igsh=MWcxbXkwM3hmZXg0Mw%3D%3D&utm_source=qr" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://github.com/Spotlight99" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+        </div>
+      </footer>
+    </div>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

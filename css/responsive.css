@@ -1,0 +1,131 @@
+﻿/* Responsive adjustments for SpotexTV Phase 1 */
+
+@media (max-width: 1024px) {
+  .page-shell {
+    gap: 2.5rem;
+  }
+
+  .nav-shell {
+    width: calc(100% - 2rem);
+  }
+
+  .content-shell {
+    width: calc(100% - 2rem);
+  }
+
+  .hero-card {
+    grid-template-columns: 1fr;
+    padding: 2rem;
+  }
+
+  .visual-card {
+    min-height: 300px;
+  }
+
+  .genre-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-shell {
+    padding: 1rem 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .nav-links {
+    position: fixed;
+    inset: 5.2rem 1rem auto auto;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    width: calc(100% - 2rem);
+    max-width: 320px;
+    background: rgba(15, 23, 42, 0.94);
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .nav-toggle-button {
+    display: flex;
+  }
+
+  .nav-toggle:checked + .nav-toggle-button + .nav-links {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .nav-link,
+  .theme-button {
+    width: 100%;
+  }
+
+  .hero-card {
+    padding: 1.75rem;
+  }
+
+  .hero-copy {
+    gap: 1.5rem;
+  }
+
+  .hero-card h1 {
+    font-size: 2.5rem;
+  }
+
+  .search-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .empty-state-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .empty-state-copy {
+    max-width: 100%;
+  }
+
+  .genre-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer-shell {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-shell {
+    padding: 0.85rem 0.85rem;
+  }
+
+  .hero-card {
+    padding: 1.5rem;
+  }
+
+  .hero-card h1 {
+    font-size: 2.1rem;
+  }
+
+  .search-panel {
+    gap: 0.85rem;
+  }
+
+  .chip-row,
+  .genre-grid,
+  .social-icons {
+    gap: 0.65rem;
+  }
+
+  .genre-chip,
+  .chip {
+    flex: 1 1 48%;
+  }
+}
