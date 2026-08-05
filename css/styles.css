@@ -133,13 +133,11 @@ button {
   transition: background var(--transition-short), transform var(--transition-short), color var(--transition-short);
 }
 
-.nav-icon-link {
-  width: 3.4rem;
-  height: 3.4rem;
-  padding: 0;
+.nav-link i {
+  margin-right: 0.65rem;
+  font-size: 1rem;
 }
 
-.nav-icon-link i,
 .theme-button i {
   font-size: 1.1rem;
 }
