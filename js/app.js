@@ -252,8 +252,11 @@ async function loadPopularMovies() {
       })
     );
     state.genreRows = rows;
+    const popularRow = rows.find((row) => row.genreId === null);
+    state.popularMovies = popularRow ? popularRow.movies : [];
   } catch (error) {
     state.genreRows = [];
+    state.popularMovies = [];
   }
 }
 
@@ -582,9 +585,14 @@ function toggleFavorite(movieId) {
 }
 
 function getMovieById(movieId) {
+  const genreMovie = state.genreRows
+    .flatMap((row) => row.movies)
+    .find((movie) => movie.id === movieId);
+
   return (
     state.searchResults.find((movie) => movie.id === movieId) ||
     state.popularMovies.find((movie) => movie.id === movieId) ||
+    genreMovie ||
     state.favorites.find((movie) => movie.id === movieId) ||
     (state.currentMovie?.id === movieId ? state.currentMovie : null)
   );
