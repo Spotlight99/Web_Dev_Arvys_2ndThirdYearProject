@@ -86,7 +86,17 @@ const MovieAPI = {
       runtime: data.runtime ? `${data.runtime} min` : "N/A",
       genres,
       director,
-      actors
+      actors,
+      releaseDate: data.release_date || "",
+      originalLanguage: ({ en: "English", es: "Spanish", fr: "French", de: "German", it: "Italian", ja: "Japanese", ko: "Korean", zh: "Chinese" })[data.original_language] || (data.original_language ? data.original_language.toUpperCase() : ""),
+      popularity: Number.isFinite(data.popularity) ? data.popularity.toFixed(1) : "",
+      voteCount: Number.isFinite(data.vote_count) ? data.vote_count.toLocaleString() : "",
+      status: data.status || "",
+      cast: (data.credits?.cast || []).slice(0, 8).map((actor) => ({
+        name: actor.name || "",
+        character: actor.character || "",
+        profilePath: actor.profile_path || ""
+      }))
     };
   },
 

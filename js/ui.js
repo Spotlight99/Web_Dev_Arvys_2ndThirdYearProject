@@ -26,6 +26,9 @@ const UI = {
       detailDirector: document.querySelector(".detail-director"),
       detailActors: document.querySelector(".detail-actors"),
       detailScore: document.querySelector(".detail-score"),
+      detailFacts: document.querySelector(".detail-facts"),
+      detailCastList: document.querySelector(".detail-cast-list"),
+      detailCast: document.querySelector(".detail-cast"),
       detailFavoriteButton: document.querySelector(".detail-favorite-button"),
       navLinks: Array.from(document.querySelectorAll(".nav-link")),
       themeButton: document.querySelector(".theme-button"),
@@ -61,20 +64,21 @@ const UI = {
       .map((movie) => {
         const posterUrl = movie.posterPath ? `${IMAGE_BASE_URL}${movie.posterPath}` : "";
         const favoriteClass = movie.isFavorite ? " favorite-active" : "";
+        const genres = (movie.genreNames || []).join(" • ");
         return `
           <article class="movie-card" data-movie-id="${movie.id}">
-            <div class="movie-poster" style="background-image: url('${posterUrl}');"></div>
+            <div class="movie-poster" style="background-image: url('${posterUrl}');">
+              <span class="movie-score"><i class="fa-solid fa-star" aria-hidden="true"></i>${movie.rating}</span>
+            </div>
             <div class="movie-card-body">
-              <div class="movie-card-meta">
-                <span class="movie-score">${movie.rating}</span>
-                <span>${movie.year}</span>
-              </div>
               <h3 class="movie-title">${movie.title}</h3>
+              <div class="movie-card-meta"><span>${movie.year}</span>${genres ? `<span>${genres}</span>` : ""}</div>
               <p class="movie-description">${movie.overview}</p>
               <div class="movie-card-controls">
                 <button class="button button-secondary favorite-toggle${favoriteClass}" type="button" data-movie-id="${movie.id}" aria-label="Toggle favorite">
                   <i class="fa-${movie.isFavorite ? "solid" : "regular"} fa-heart"></i>
                 </button>
+                <button class="button button-primary movie-details-button" type="button">View Details</button>
               </div>
             </div>
           </article>
@@ -102,17 +106,22 @@ const UI = {
     const gridHtml = favorites
       .map((movie) => {
         const posterUrl = movie.posterPath ? `${IMAGE_BASE_URL}${movie.posterPath}` : "";
+        const genres = Array.isArray(movie.genreNames)
+          ? movie.genreNames
+          : String(movie.genres || "").split(",").map((genre) => genre.trim()).filter(Boolean);
         return `
           <article class="movie-card" data-movie-id="${movie.id}">
-            <div class="movie-poster" style="background-image: url('${posterUrl}');"></div>
+            <div class="movie-poster" style="background-image: url('${posterUrl}');">
+              <span class="movie-score"><i class="fa-solid fa-star" aria-hidden="true"></i>${movie.rating}</span>
+            </div>
             <div class="movie-card-body">
-              <div class="movie-card-meta">
-                <span class="movie-score">${movie.rating}</span>
-                <span>${movie.year}</span>
-              </div>
               <h3 class="movie-title">${movie.title}</h3>
+              <div class="movie-card-meta"><span>${movie.year}</span><span>${movie.runtime || "Runtime N/A"}</span></div>
+              <div class="movie-card-genres">${genres.map((genre) => `<span>${genre}</span>`).join("")}</div>
+              <p class="movie-description">${movie.overview || "No description available."}</p>
               <div class="movie-card-controls">
-                <button class="button button-secondary favorite-remove" type="button" data-movie-id="${movie.id}">Remove</button>
+                <button class="button button-secondary favorite-remove" type="button" data-movie-id="${movie.id}" aria-label="Remove ${movie.title} from favorites"><i class="fa-solid fa-heart" aria-hidden="true"></i></button>
+                <button class="button button-primary movie-details-button" type="button">View Details</button>
               </div>
             </div>
           </article>
@@ -192,7 +201,7 @@ const UI = {
           <section class="carousel-row">
             <div class="carousel-row-header">
               <h2>${row.name}</h2>
-              <a class="carousel-all-link" href="#" data-genre-id="${row.genreId || ""}">All ></a>
+              <button class="carousel-all-link" type="button" data-genre-id="${row.genreId || ""}" data-genre-name="${row.name}">All ></button>
             </div>
             <div class="carousel-track">${cards}</div>
           </section>
@@ -235,6 +244,9 @@ const UI = {
       detailDirector,
       detailActors,
       detailScore,
+      detailFacts,
+      detailCastList,
+      detailCast,
       detailFavoriteButton
     } = this.elements;
 
@@ -243,14 +255,62 @@ const UI = {
     }
 
     detailPoster.style.backgroundImage = movie.posterPath ? `url('${IMAGE_BASE_URL}${movie.posterPath}')` : "none";
+    detailPoster.setAttribute("aria-label", `${movie.title} poster`);
+    const detailPage = detailPoster.closest(".detail-page");
+    if (detailPage) {
+      detailPage.style.setProperty(
+        "--detail-backdrop",
+        movie.backdropPath ? `url('${IMAGE_BASE_URL}${movie.backdropPath}')` : "none"
+      );
+    }
     detailTitle.textContent = movie.title;
-    detailSubtitle.textContent = `${movie.year} • ${movie.runtime} • ${movie.genres}`;
+    detailSubtitle.innerHTML = [
+      ["fa-solid fa-star", movie.rating],
+      ["fa-regular fa-clock", movie.runtime],
+      ["fa-regular fa-calendar", movie.year]
+    ].filter(([, value]) => value && value !== "N/A").map(([icon, value]) =>
+      `<span><i class="${icon}" aria-hidden="true"></i> ${value}</span>`
+    ).join("");
     detailOverview.textContent = movie.overview;
-    detailGenres.textContent = movie.genres;
+    detailGenres.innerHTML = movie.genres
+      .split(",")
+      .filter((genre) => genre.trim() && genre.trim() !== "N/A")
+      .map((genre) => `<span class="detail-genre-chip">${genre.trim()}</span>`)
+      .join("");
     detailDirector.textContent = movie.director;
     detailActors.textContent = movie.actors;
     detailScore.textContent = movie.rating;
+    detailScore.innerHTML = `<i class="fa-solid fa-star" aria-hidden="true"></i><span>${movie.rating}</span>`;
+    if (detailFacts) {
+      const facts = [
+        ["fa-solid fa-chair", "Director", movie.director],
+        ["fa-solid fa-language", "Language", movie.originalLanguage],
+        ["fa-regular fa-calendar", "Release date", movie.releaseDate],
+        ["fa-solid fa-fire", "Popularity", movie.popularity],
+        ["fa-solid fa-clapperboard", "Status", movie.status],
+        ["fa-regular fa-user", "Vote count", movie.voteCount]
+      ].filter(([, , value]) => value && value !== "N/A");
+      detailFacts.innerHTML = facts.map(([icon, label, value]) => `
+        <div class="detail-fact"><i class="${icon}" aria-hidden="true"></i><div><span>${label}</span><strong>${value}</strong></div></div>
+      `).join("");
+    }
+    if (detailCastList && detailCast) {
+      const cast = (movie.cast || []).filter((person) => person.name);
+      detailCast.classList.toggle("hidden", !cast.length);
+      detailCastList.innerHTML = cast.map((person) => {
+        const image = person.profilePath ? `${IMAGE_BASE_URL}${person.profilePath}` : "";
+        const avatar = image
+          ? `<img src="${image}" alt="${person.name}" loading="lazy">`
+          : `<span aria-hidden="true">${person.name.charAt(0)}</span>`;
+        return `<article class="detail-cast-member"><div class="detail-cast-avatar">${avatar}</div><strong>${person.name}</strong>${person.character ? `<span>${person.character}</span>` : ""}</article>`;
+      }).join("");
+    }
     detailFavoriteButton.dataset.movieId = movie.id;
+    detailFavoriteButton.setAttribute("aria-label", isFavorite ? "Remove from favorites" : "Add to favorites");
+    document.querySelectorAll(".details-back").forEach((button) => button.setAttribute("aria-label", "Back to home"));
+    const trailerLink = document.querySelector(".detail-trailer-link");
+    trailerLink.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${movie.title} official trailer`)}`;
+    trailerLink.setAttribute("aria-label", `Watch the trailer for ${movie.title} on YouTube`);
     detailFavoriteButton.innerHTML = `${isFavorite ? "<i class=\"fa-solid fa-heart\"></i>" : "<i class=\"fa-regular fa-heart\"></i>"} ${isFavorite ? "Remove Favorite" : "Add to Favorites"}`;
 
     this.showScreen("details");

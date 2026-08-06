@@ -25,9 +25,37 @@
   .genre-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  #results .movie-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #favorites .favorites-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1400px) {
+  #favorites .favorites-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
+  .detail-page { display: grid; width: calc(100% - 2rem); padding: 0 1rem 1.25rem; }
+  .detail-body { display: contents; margin-top: 0; }
+  .detail-page { grid-template-columns: 1fr; gap: 0; padding: 0 1rem 1.25rem; }
+  .detail-page::before,
+  .detail-page::after { height: 48vh; min-height: 340px; }
+  .detail-head { padding: 0.9rem 0; }
+  .detail-poster { grid-column: 1; width: min(200px, 56vw); min-height: 300px; margin: clamp(110px, 19vh, 150px) auto -3rem; }
+  .detail-info { grid-column: 1; margin-top: 0; padding-top: 5rem; }
+  .detail-title { color: var(--color-text-primary); font-size: clamp(1.9rem, 9vw, 2.6rem); text-shadow: none; }
+  .detail-subtitle { color: var(--color-text-secondary); }
+  .detail-meta-row { grid-template-columns: 1fr; gap: 1rem; }
+  .detail-subtitle { gap: 0.6rem 0.8rem; font-size: 0.9rem; }
+  .detail-trailer-link { justify-content: center; width: 100%; }
+  .detail-favorite-button { width: 100%; }
   .nav-shell {
     padding: 1rem 1rem;
     width: calc(100% - 2rem);
@@ -123,5 +151,137 @@
   .genre-chip,
   .chip {
     flex: 1 1 48%;
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-page { width: 100%; padding: 0 0.75rem 1rem; }
+  .detail-page::before, .detail-page::after { height: 400px; }
+  .detail-head { padding: 1rem 0; }
+  .details-back span { display: none; }
+  .detail-body { grid-template-columns: 1fr; gap: 0; margin-top: 145px; }
+  .detail-poster { width: min(224px, 61vw); min-height: 336px; margin: 0 auto -70px; }
+  .detail-info { min-height: 0; margin: 0; padding: 5.5rem 1rem 1.25rem; border-radius: 24px; }
+  .detail-title { font-size: clamp(2rem, 10vw, 2.8rem); }
+  .detail-subtitle { font-size: 0.88rem; }
+  .detail-facts { gap: 1.05rem; }
+  .detail-trailer-link, .detail-favorite-button { min-height: 3.65rem; }
+}
+
+@media (max-width: 420px) {
+  .detail-head .detail-score { min-width: 0; padding: 0.58rem 0.78rem; }
+  .detail-facts { grid-template-columns: 1fr; }
+  .detail-cast-member { flex-basis: 74px; }
+  .detail-cast-avatar { width: 72px; height: 72px; }
+}
+
+/* Preserve the shared fluid details composition after legacy mobile rules. */
+@media (max-width: 768px) {
+  .detail-page { display: block; width: min(95%, 1600px); padding: 0 clamp(1rem, 3vw, 3.5rem) clamp(1.5rem, 4vw, 4rem); }
+  .detail-page::before, .detail-page::after { height: clamp(390px, 48vw, 640px); }
+  .detail-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: clamp(120px, 20vw, 310px); }
+  .detail-poster { width: clamp(180px, 19vw, 300px); min-height: 0; aspect-ratio: 2 / 3; margin: 0 auto calc(-1 * clamp(52px, 6vw, 96px)); }
+  .detail-info { width: min(100%, 1500px); margin: 0 auto; padding: clamp(5.5rem, 9vw, 8.5rem) clamp(1.2rem, 4vw, 3.5rem) clamp(1.5rem, 4vw, 3.5rem); }
+}
+
+/* Phone-only carousel viewport: the page gutter provides the 8–12% side space. */
+@media (max-width: 767px) {
+  .trending-track {
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 0;
+    scroll-padding: 0;
+    scroll-snap-type: x mandatory;
+  }
+
+  .trending-banner-card {
+    flex: 0 0 100%;
+    width: 100%;
+    scroll-snap-align: start;
+  }
+
+  /* Keep the existing search docking intact while swapping only the mobile
+     navigation controls when the docked-search state becomes active. */
+  .nav-toggle-button {
+    display: none;
+    flex: 0 0 2.4rem;
+  }
+
+  .nav-links {
+    position: static;
+    inset: auto;
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    max-width: none;
+    padding: 0;
+    gap: 0.45rem;
+    border: 0;
+    background: transparent;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .nav-link,
+  .theme-button {
+    width: 2.65rem;
+    height: 2.65rem;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .nav-link i {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .theme-button i {
+    font-size: 1rem;
+  }
+
+  .nav-shell.nav-search-active .nav-links {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: 0;
+    flex-direction: column;
+    width: min(18rem, calc(100vw - 2rem));
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1.5rem;
+    background: rgba(15, 23, 42, 0.94);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+  }
+
+  .nav-shell.nav-search-active .nav-toggle-button {
+    display: flex !important;
+    position: relative;
+    z-index: 2;
+    flex: 0 0 2.4rem;
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .nav-shell.nav-search-active .nav-toggle:checked + .nav-toggle-button + .nav-links {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .nav-shell.nav-search-active .nav-link,
+  .nav-shell.nav-search-active .theme-button {
+    width: 100%;
+    height: auto;
+    min-height: 2.8rem;
+    padding: 0.8rem 1rem;
+    justify-content: flex-start;
+    font-size: 0.95rem;
+  }
+
+  .nav-shell.nav-search-active .nav-link i {
+    margin-right: 0.65rem;
   }
 }

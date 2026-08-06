@@ -37,7 +37,9 @@ const detailsBackButtons = Array.from(document.querySelectorAll(".details-back")
 const detailFavoriteButton = document.querySelector(".detail-favorite-button");
 const themeButton = document.querySelector(".theme-button");
 let suggestionDebounce = null;
+let suggestionSession = 0;
 let trendingAutoScrollTimer = null;
+let backToTopIdleTimer = null;
 let isSearchDocked = false;
 
 const state = {
@@ -73,8 +75,12 @@ function attachEventHandlers() {
 
   if (searchInput) {
     searchInput.addEventListener("input", handleSearchInput);
+    searchInput.addEventListener("focus", () => {
+      suggestionSession += 1;
+    });
   }
   document.addEventListener("click", handleDocumentClick);
+  document.addEventListener("keydown", handleDocumentKeydown);
 
   if (searchSuggestions) {
     searchSuggestions.addEventListener("click", handleSuggestionClick);
@@ -83,9 +89,13 @@ function attachEventHandlers() {
   if (backToTopButton) {
     backToTopButton.addEventListener("click", handleBackToTopClick);
     window.addEventListener("scroll", handleScroll);
+    ["pointerdown", "touchstart", "keydown"].forEach((eventName) => {
+      window.addEventListener(eventName, revealBackToTopOnInteraction, { passive: true });
+    });
   }
 
   window.addEventListener("scroll", handleScrollDocking, { passive: true });
+  window.addEventListener("scroll", dismissSearchSuggestions, { passive: true });
 
   if (recentContainer) {
     recentContainer.addEventListener("click", handleRecentSearchClick);
@@ -170,7 +180,10 @@ function startTrendingAutoScroll() {
     if (trendingTrackEl.scrollLeft >= maxScroll - 5) {
       trendingTrackEl.scrollTo({ left: 0, behavior: "smooth" });
     } else {
-      trendingTrackEl.scrollBy({ left: 260, behavior: "smooth" });
+      const slideDistance = window.matchMedia("(max-width: 767px)").matches
+        ? trendingTrackEl.clientWidth
+        : 260;
+      trendingTrackEl.scrollBy({ left: slideDistance, behavior: "smooth" });
     }
   }, 3500);
 }
@@ -184,6 +197,18 @@ function stopTrendingAutoScroll() {
 
 function handleScrollDocking() {
   if (!navShellEl || !navSearchSlot || !searchBarShell || !topBannerEl) {
+    return;
+  }
+
+  // The detail screen owns the cinematic hero; a docked search field would cut
+  // across the poster and backdrop while the user is reading it.
+  if (state.route === "details") {
+    if (isSearchDocked) {
+      topBannerEl.appendChild(searchBarShell);
+      searchBarShell.classList.remove("in-nav");
+      navShellEl.classList.remove("nav-search-active");
+      isSearchDocked = false;
+    }
     return;
   }
 
@@ -216,12 +241,14 @@ function resolveRoute(hash) {
 }
 
 function handleRouteChange() {
+  dismissSearchSuggestions();
   const hash = window.location.hash || "#home";
   const route = resolveRoute(hash);
   state.route = route.name;
 
   if (route.name === "details") {
     UI.setActiveNav(null);
+    handleScrollDocking();
     loadMovieDetails(route.id);
     return;
   }
@@ -233,6 +260,7 @@ function handleRouteChange() {
   }
 
   UI.setActiveNav("#home");
+  handleScrollDocking();
   renderHomeView();
 }
 
@@ -291,23 +319,44 @@ async function handleSearch(event) {
     return;
   }
 
+  dismissSearchSuggestions();
   await performSearch(query);
 }
 
 async function handleGenreClick(event) {
   const button = event.currentTarget;
-  const genreId = button.dataset.genreId;
-  const genreName = button.textContent?.trim() || "";
+
+  await selectGenre(button.dataset.genreId, button.textContent?.trim() || "");
+}
+
+async function selectGenre(genreId, genreName) {
+  const matchingChip = genreButtons.find((button) => button.dataset.genreId === genreId);
 
   genreButtons.forEach((btn) => btn.classList.remove("active"));
-  button.classList.add("active");
+  matchingChip?.classList.add("active");
 
-  if (!genreId) {
+  await openGenre(genreId, genreName);
+}
+
+async function openGenre(genreId, genreName) {
+  if (genreId) {
+    await performGenreSearch(genreId, genreName);
     return;
   }
 
-  state.searchQuery = genreName;
-  await performGenreSearch(genreId, genreName);
+  state.searchQuery = genreName || "Popular";
+  UI.showLoading();
+
+  try {
+    const movies = await MovieAPI.getPopularMovies();
+    state.searchResults = movies.map((movie) => ({ ...movie, isFavorite: isFavorite(movie.id) }));
+    saveRecentSearch(state.searchQuery);
+    state.screen = state.searchResults.length ? "results" : "notfound";
+    navigateRoute("#home");
+  } catch (error) {
+    state.screen = "notfound";
+    navigateRoute("#home");
+  }
 }
 
 async function handleRecentSearchClick(event) {
@@ -336,8 +385,12 @@ function handleSearchInput(event) {
     return;
   }
 
+  const session = ++suggestionSession;
   suggestionDebounce = setTimeout(async () => {
     const movies = await MovieAPI.searchMovies(query);
+    if (session !== suggestionSession || document.activeElement !== searchInput) {
+      return;
+    }
     renderSuggestions(movies.slice(0, 10));
   }, 350);
 }
@@ -374,6 +427,18 @@ function hideSuggestions() {
   searchSuggestions.innerHTML = "";
 }
 
+function dismissSearchSuggestions() {
+  suggestionSession += 1;
+  if (suggestionDebounce) {
+    clearTimeout(suggestionDebounce);
+    suggestionDebounce = null;
+  }
+  hideSuggestions();
+  if (document.activeElement === searchInput) {
+    searchInput.blur();
+  }
+}
+
 function handleSuggestionClick(event) {
   const suggestion = event.target.closest(".search-suggestion-item");
   if (!suggestion) {
@@ -389,14 +454,14 @@ function handleSuggestionClick(event) {
     searchInput.value = title;
   }
 
-  hideSuggestions();
+  dismissSearchSuggestions();
   performSearch(title);
 }
 
 function handleDocumentClick(event) {
   const clickedInsideSearch = event.target.closest(".search-panel");
   if (!clickedInsideSearch) {
-    hideSuggestions();
+    dismissSearchSuggestions();
   }
 
   const navToggle = document.querySelector("#nav-toggle");
@@ -411,6 +476,12 @@ function handleDocumentClick(event) {
   }
 }
 
+function handleDocumentKeydown(event) {
+  if (event.key === "Escape") {
+    dismissSearchSuggestions();
+  }
+}
+
 function handleBackToTopClick() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -419,7 +490,26 @@ function handleScroll() {
   if (!backToTopButton) {
     return;
   }
-  backToTopButton.classList.toggle("visible", window.scrollY > 400);
+
+  if (window.scrollY <= 400) {
+    clearTimeout(backToTopIdleTimer);
+    backToTopButton.classList.remove("visible");
+    return;
+  }
+
+  revealBackToTopOnInteraction();
+}
+
+function revealBackToTopOnInteraction() {
+  if (!backToTopButton || window.scrollY <= 400) {
+    return;
+  }
+
+  clearTimeout(backToTopIdleTimer);
+  backToTopButton.classList.add("visible");
+  backToTopIdleTimer = setTimeout(() => {
+    backToTopButton.classList.remove("visible");
+  }, 2500);
 }
 
 function handleResultsGridClick(event) {
@@ -437,7 +527,13 @@ function handleResultsGridClick(event) {
   }
 }
 
-function handleGenreRowsClick(event) {
+async function handleGenreRowsClick(event) {
+  const allButton = event.target.closest(".carousel-all-link");
+  if (allButton) {
+    await selectGenre(allButton.dataset.genreId, allButton.dataset.genreName || "");
+    return;
+  }
+
   const favoriteButton = event.target.closest(".carousel-favorite");
   if (favoriteButton) {
     const movieId = favoriteButton.dataset.movieId;
@@ -568,7 +664,7 @@ function toggleFavorite(movieId) {
   }));
 
   UI.updateFavoriteState((id) => isFavorite(id));
-  if (state.screen === "home") {
+  if (state.screen === "home" && state.route !== "details") {
     state.genreRows = state.genreRows.map((row) => ({
       ...row,
       movies: row.movies.map((movie) => ({ ...movie, isFavorite: isFavorite(movie.id) }))
@@ -624,6 +720,7 @@ function handleThemeToggle() {
 }
 
 function navigateRoute(hash) {
+  dismissSearchSuggestions();
   if (window.location.hash === hash) {
     handleRouteChange();
     return;

@@ -135,31 +135,33 @@
         <section id="details" class="hidden">
           <div class="container detail-page glass-card">
             <div class="detail-head">
-              <button class="button button-secondary details-back" type="button">Back</button>
-              <span class="detail-score"></span>
+              <button class="button button-secondary details-back" type="button" aria-label="Back to home">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Back</span>
+              </button>
+              <span class="detail-score" aria-label="Movie rating"></span>
             </div>
             <div class="detail-body">
-              <div class="detail-poster"></div>
+              <div class="detail-poster" role="img" aria-label="Movie poster"></div>
               <div class="detail-info">
                 <h1 class="detail-title"></h1>
                 <p class="detail-subtitle"></p>
-                <p class="detail-overview"></p>
-                <div class="detail-meta-row">
-                  <div>
-                    <p class="meta-label">Genres</p>
-                    <span class="detail-genres"></span>
-                  </div>
-                  <div>
-                    <p class="meta-label">Director</p>
-                    <span class="detail-director"></span>
-                  </div>
+                <div class="detail-genres-block">
+                  <span class="detail-genres"></span>
                 </div>
-                <div class="detail-meta-row">
-                  <div>
-                    <p class="meta-label">Actors</p>
-                    <span class="detail-actors"></span>
-                  </div>
-                </div>
+                <a class="detail-trailer-link" target="_blank" rel="noopener noreferrer">
+                  <i class="fa-solid fa-play" aria-hidden="true"></i><span>Watch Trailer</span>
+                </a>
+                <section class="detail-synopsis" aria-labelledby="synopsis-heading">
+                  <h2 id="synopsis-heading">Synopsis</h2>
+                  <p class="detail-overview"></p>
+                </section>
+                <section class="detail-facts" aria-label="Movie information"></section>
+                <section class="detail-cast" aria-labelledby="cast-heading">
+                  <div class="detail-section-heading"><h2 id="cast-heading">Cast</h2></div>
+                  <div class="detail-cast-list"></div>
+                </section>
+                <span class="detail-director hidden"></span>
+                <span class="detail-actors hidden"></span>
                 <button class="button button-primary detail-favorite-button" type="button">Add to Favorites</button>
               </div>
             </div>
@@ -179,9 +181,9 @@
               <div class="empty-state-illustration">
                 <i class="fa-solid fa-heart"></i>
               </div>
-              <h3>No favorites yet</h3>
-              <p>Save movies while browsing and they will appear here.</p>
-              <button class="button button-primary favorites-discover" type="button">Discover movies</button>
+              <h3>No Favorites Yet</h3>
+              <p>Save movies you love to build your personal collection.</p>
+              <button class="button button-primary favorites-discover" type="button">Browse Movies</button>
             </div>
           </div>
         </section>
@@ -213,8 +215,10 @@
         <div class="social-icons">
           <a href="https://x.com/emmanuel_spotex?s=11" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
           <a href="https://www.instagram.com/emmanuel_spotexchange?igsh=MWcxbXkwM3hmZXg0Mw%3D%3D&utm_source=qr" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-          <a href="https://github.com/Spotlight99" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+          <a class="source-link" href="https://github.com/Spotlight99" aria-label="View source code on GitHub"><i class="fa-brands fa-github"></i><span>View Source Code</span></a>
         </div>
+        <p class="footer-attribution">Movie data provided by <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer">TMDB</a></p>
+        <p class="footer-copyright">© 2026 SpotexTV</p>
       </footer>
     </div>
     <script type="module" src="js/app.js"></script>
