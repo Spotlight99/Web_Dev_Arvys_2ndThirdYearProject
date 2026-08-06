@@ -1953,3 +1953,85 @@ button {
 }
 
 #favorites .movie-card:focus-within { border-color: rgba(96, 165, 250, 0.6); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2), 0 24px 52px rgba(0, 0, 0, 0.38); }
+
+/* Scale card content from the card's available inline space, not the viewport. */
+#results .movie-card,
+#favorites .movie-card {
+  container-type: inline-size;
+}
+
+#results .movie-card-body,
+#favorites .movie-card-body {
+  gap: clamp(0.45rem, 4cqi, 0.9rem);
+  padding: clamp(0.8rem, 6cqi, 1.4rem);
+}
+
+#results .movie-title,
+#favorites .movie-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: clamp(0.95rem, 6cqi, 1.35rem);
+}
+
+#results .movie-card-meta,
+#favorites .movie-card-meta {
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: clamp(0.35rem, 3cqi, 0.7rem);
+  font-size: clamp(0.7rem, 4cqi, 0.82rem);
+}
+
+#results .movie-card-meta span,
+#favorites .movie-card-meta span,
+#results .movie-card-genres span,
+#favorites .movie-card-genres span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#results .movie-card-meta span + span,
+#favorites .movie-card-meta span + span {
+  padding-left: clamp(0.35rem, 3cqi, 0.7rem);
+}
+
+#results .movie-card-genres,
+#favorites .movie-card-genres {
+  gap: clamp(0.25rem, 2cqi, 0.4rem);
+}
+
+#results .movie-card-genres span,
+#favorites .movie-card-genres span {
+  padding: clamp(0.2rem, 2cqi, 0.3rem) clamp(0.35rem, 3cqi, 0.58rem);
+  font-size: clamp(0.62rem, 3.5cqi, 0.72rem);
+}
+
+#results .movie-description,
+#favorites .movie-description {
+  min-width: 0;
+  font-size: clamp(0.75rem, 4cqi, 0.86rem);
+  overflow-wrap: anywhere;
+}
+
+#results .movie-card-controls,
+#favorites .movie-card-controls {
+  gap: clamp(0.35rem, 3cqi, 0.65rem);
+}
+
+#results .movie-card-controls > .button,
+#favorites .movie-card-controls > .button {
+  height: clamp(2.35rem, 14cqi, 2.8rem);
+  min-height: clamp(2.35rem, 14cqi, 2.8rem);
+}
+
+#results .favorite-toggle,
+#favorites .favorite-remove {
+  flex-basis: clamp(2.35rem, 14cqi, 2.8rem);
+  width: clamp(2.35rem, 14cqi, 2.8rem);
+  height: clamp(2.35rem, 14cqi, 2.8rem);
+}
+
+#results .movie-details-button,
+#favorites .movie-details-button {
+  padding-inline: clamp(0.35rem, 3cqi, 0.85rem);
+  font-size: clamp(0.62rem, 4cqi, 0.84rem);
+}
