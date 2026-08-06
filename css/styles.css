@@ -745,9 +745,9 @@ button {
 }
 
 .movie-poster {
-  min-height: 260px;
-  background-size: cover;
-  background-position: center;
+    height: 340px;
+    min-height: unset;
+    aspect-ratio: 2 / 3;
 }
 
 .movie-card-body {
