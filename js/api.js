@@ -1,5 +1,3 @@
-import { LOCAL_TMDB_API_KEY } from "./config.js";
-
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 
@@ -20,6 +18,7 @@ const IS_LOCAL = ["localhost", "127.0.0.1"].includes(window.location.hostname);
 
 async function request(endpoint, params = {}) {
   if (IS_LOCAL) {
+    const { LOCAL_TMDB_API_KEY } = await import("./config.js");
     if (!LOCAL_TMDB_API_KEY || LOCAL_TMDB_API_KEY === "YOUR_TMDB_API_KEY") {
       throw new Error("Set your real key in js/config.js to test locally with Live Server.");
     }
