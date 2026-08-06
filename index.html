@@ -23,6 +23,7 @@
           <span class="brand-icon"><i class="fa-solid fa-play"></i></span>
           <span class="brand-text">Spotex TV</span>
         </div>
+        <div class="nav-search-slot"></div>
 
         <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Open menu" />
         <label for="nav-toggle" class="nav-toggle-button" aria-hidden="true">
@@ -48,68 +49,34 @@
 
       <main class="content-shell">
         <section id="home">
-          <section class="hero-section">
-            <div class="hero-card glass-card">
-              <div class="hero-copy">
-                <span class="hero-badge">Cinematic discovery for every mood</span>
-                <h1>Discover Your Next Favorite Movie</h1>
-                <p class="hero-description">
-                  Explore a premium home for movie discovery with beautiful spacing, thoughtful
-                  typography, and calm content flow.
-                </p>
-
-                <form class="search-panel">
-                  <div class="search-input-shell">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input
-                      class="search-input"
-                      type="text"
-                      autocomplete="chrome-off-search-suggestions"
-                      placeholder="Search movies, actors, or genres"
-                      aria-label="Search movies"
-                    />
-                  </div>
-                  <div class="search-suggestions hidden"></div>
-                  <button class="button button-primary" type="submit">Search</button>
-                </form>
-
-                <div class="recent-shell">
-                  <div class="recent-header">
-                    <p class="section-label">Recent searches</p>
-                    <p class="section-note">Popular searches for quick inspiration.</p>
-                  </div>
-                  <div class="chip-row">
-                    <span class="chip">Batman</span>
-                    <span class="chip">Inception</span>
-                    <span class="chip">Avatar</span>
-                    <span class="chip">Interstellar</span>
-                    <span class="chip">Titanic</span>
-                  </div>
+          <section class="top-banner">
+            <div class="trending-track"></div>
+            <div class="search-bar-shell">
+              <form class="search-panel">
+                <div class="search-input-shell">
+                  <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                  <input
+                    class="search-input"
+                    type="text"
+                    placeholder="Search movies, actors, or genres"
+                    aria-label="Search movies"
+                    autocomplete="chrome-off-search-suggestions"
+                  />
                 </div>
-              </div>
-
-              <div class="hero-visual">
-                <div class="visual-card trending-card">
-                  <div class="visual-overlay"></div>
-                  <div class="visual-badge">HOT</div>
-                  <div class="visual-title trending-title">Midnight Escape</div>
-                  <p class="visual-copy trending-overview">Stylish recommendations, ready when you are.</p>
-                  <div class="visual-tags trending-tags"></div>
-                </div>
-              </div>
+                <button class="button button-primary search-submit" type="submit" aria-label="Search">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <div class="search-suggestions hidden"></div>
+              </form>
             </div>
           </section>
 
-          <section class="genres-section">
-            <div class="section-header">
-              <div>
-                <p class="section-label">Browse</p>
-                <h2>Popular genres</h2>
-              </div>
-              <p class="section-note">Tap into genres that match your mood and discover new favorites.</p>
+          <div class="genres-shell">
+            <div class="recent-header">
+              <p class="section-label">Genres</p>
+              <p class="section-note">Browse by mood and category.</p>
             </div>
-
-            <div class="genre-grid">
+            <div class="genre-chip-scroll">
               <button class="genre-chip" type="button" data-genre-id="28">Action</button>
               <button class="genre-chip" type="button" data-genre-id="12">Adventure</button>
               <button class="genre-chip" type="button" data-genre-id="35">Comedy</button>
@@ -121,10 +88,24 @@
               <button class="genre-chip" type="button" data-genre-id="80">Crime</button>
               <button class="genre-chip" type="button" data-genre-id="10749">Romance</button>
             </div>
-          </section>
+          </div>
+
+          <div class="recent-shell">
+            <div class="recent-header">
+              <p class="section-label">Recent searches</p>
+              <p class="section-note">Popular searches for quick inspiration.</p>
+            </div>
+            <div class="chip-row">
+              <span class="chip">Batman</span>
+              <span class="chip">Inception</span>
+              <span class="chip">Avatar</span>
+              <span class="chip">Interstellar</span>
+              <span class="chip">Titanic</span>
+            </div>
+          </div>
 
           <section class="empty-state-section">
-            <div class="popular-grid"></div>
+            <div class="genre-rows"></div>
           </section>
         </section>
 

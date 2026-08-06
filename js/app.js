@@ -8,9 +8,28 @@ const searchSuggestions = document.querySelector(".search-suggestions");
 const backToTopButton = document.querySelector(".back-to-top");
 const recentContainer = document.querySelector(".chip-row");
 const genreButtons = Array.from(document.querySelectorAll(".genre-chip"));
+const HOME_ROWS = [
+  { name: "Popular", genreId: null },
+  { name: "Action", genreId: "28" },
+  { name: "Adventure", genreId: "12" },
+  { name: "Comedy", genreId: "35" },
+  { name: "Drama", genreId: "18" },
+  { name: "Sci-Fi", genreId: "878" },
+  { name: "Horror", genreId: "27" },
+  { name: "Animation", genreId: "16" },
+  { name: "Fantasy", genreId: "14" },
+  { name: "Crime", genreId: "80" },
+  { name: "Romance", genreId: "10749" }
+];
 const resultsGrid = document.querySelector(".movie-grid");
 const popularGrid = document.querySelector(".popular-grid");
 const favoritesGrid = document.querySelector(".favorites-grid");
+const genreRowsContainer = document.querySelector(".genre-rows");
+const navShellEl = document.querySelector(".nav-shell");
+const navSearchSlot = document.querySelector(".nav-search-slot");
+const searchBarShell = document.querySelector(".search-bar-shell");
+const topBannerEl = document.querySelector(".top-banner");
+const trendingTrackEl = document.querySelector(".trending-track");
 const resultsBack = document.querySelector(".results-back");
 const discoverButton = document.querySelector(".favorites-discover");
 const searchAgainButton = document.querySelector(".notfound-button");
@@ -18,6 +37,8 @@ const detailsBackButtons = Array.from(document.querySelectorAll(".details-back")
 const detailFavoriteButton = document.querySelector(".detail-favorite-button");
 const themeButton = document.querySelector(".theme-button");
 let suggestionDebounce = null;
+let trendingAutoScrollTimer = null;
+let isSearchDocked = false;
 
 const state = {
   route: "home",
@@ -25,6 +46,7 @@ const state = {
   searchQuery: "",
   searchResults: [],
   popularMovies: [],
+  genreRows: [],
   currentMovie: null,
   favorites: Storage.getFavorites(),
   recentSearches: Storage.getRecentSearches(),
@@ -36,6 +58,7 @@ window.addEventListener("hashchange", handleRouteChange);
 
 async function init() {
   attachEventHandlers();
+  handleScrollDocking();
   UI.applyTheme(state.theme);
   UI.renderRecentSearches(state.recentSearches);
   await loadPopularMovies();
@@ -61,6 +84,8 @@ function attachEventHandlers() {
     backToTopButton.addEventListener("click", handleBackToTopClick);
     window.addEventListener("scroll", handleScroll);
   }
+
+  window.addEventListener("scroll", handleScrollDocking, { passive: true });
 
   if (recentContainer) {
     recentContainer.addEventListener("click", handleRecentSearchClick);
@@ -119,6 +144,63 @@ function attachEventHandlers() {
   if (favoritesGrid) {
     favoritesGrid.addEventListener("click", handleFavoritesGridClick);
   }
+
+  if (genreRowsContainer) {
+    genreRowsContainer.addEventListener("click", handleGenreRowsClick);
+  }
+
+  if (trendingTrackEl) {
+    trendingTrackEl.addEventListener("click", handleTrendingBannerClick);
+    trendingTrackEl.addEventListener("mouseenter", stopTrendingAutoScroll);
+    trendingTrackEl.addEventListener("mouseleave", startTrendingAutoScroll);
+    trendingTrackEl.addEventListener("touchstart", stopTrendingAutoScroll, { passive: true });
+  }
+}
+
+function startTrendingAutoScroll() {
+  if (!trendingTrackEl || trendingAutoScrollTimer) {
+    return;
+  }
+
+  trendingAutoScrollTimer = setInterval(() => {
+    if (!trendingTrackEl.children.length) {
+      return;
+    }
+    const maxScroll = trendingTrackEl.scrollWidth - trendingTrackEl.clientWidth;
+    if (trendingTrackEl.scrollLeft >= maxScroll - 5) {
+      trendingTrackEl.scrollTo({ left: 0, behavior: "smooth" });
+    } else {
+      trendingTrackEl.scrollBy({ left: 260, behavior: "smooth" });
+    }
+  }, 3500);
+}
+
+function stopTrendingAutoScroll() {
+  if (trendingAutoScrollTimer) {
+    clearInterval(trendingAutoScrollTimer);
+    trendingAutoScrollTimer = null;
+  }
+}
+
+function handleScrollDocking() {
+  if (!navShellEl || !navSearchSlot || !searchBarShell || !topBannerEl) {
+    return;
+  }
+
+  const bannerHeight = topBannerEl.offsetHeight;
+  const shouldDock = window.scrollY > bannerHeight * 0.5;
+
+  if (shouldDock && !isSearchDocked) {
+    navSearchSlot.appendChild(searchBarShell);
+    searchBarShell.classList.add("in-nav");
+    navShellEl.classList.add("nav-search-active");
+    isSearchDocked = true;
+  } else if (!shouldDock && isSearchDocked) {
+    topBannerEl.appendChild(searchBarShell);
+    searchBarShell.classList.remove("in-nav");
+    navShellEl.classList.remove("nav-search-active");
+    isSearchDocked = false;
+  }
 }
 
 function resolveRoute(hash) {
@@ -157,19 +239,31 @@ function handleRouteChange() {
 async function loadPopularMovies() {
   UI.showLoading();
   try {
-    const movies = await MovieAPI.getPopularMovies();
-    state.popularMovies = movies.map((movie) => ({ ...movie, isFavorite: isFavorite(movie.id) }));
+    const rows = await Promise.all(
+      HOME_ROWS.map(async (row) => {
+        const movies = row.genreId
+          ? await MovieAPI.getMoviesByGenre(row.genreId)
+          : await MovieAPI.getPopularMovies();
+        return {
+          name: row.name,
+          genreId: row.genreId,
+          movies: movies.slice(0, 12).map((movie) => ({ ...movie, isFavorite: isFavorite(movie.id) }))
+        };
+      })
+    );
+    state.genreRows = rows;
   } catch (error) {
-    state.popularMovies = [];
+    state.genreRows = [];
   }
 }
 
 async function loadTrendingMovie() {
   try {
-    const movie = await MovieAPI.getTrendingMovie();
-    UI.renderTrending(movie);
+    const movies = await MovieAPI.getTrendingMovies();
+    UI.renderTrendingBanner(movies);
+    startTrendingAutoScroll();
   } catch (error) {
-    // leave the fallback markup already in index.html untouched
+    // leave the trending-track empty if this fails, the rest of the page still works
   }
 }
 
@@ -184,7 +278,7 @@ function renderHomeView() {
     return;
   }
 
-  UI.renderHome(state.popularMovies);
+  UI.renderGenreRows(state.genreRows);
 }
 
 async function handleSearch(event) {
@@ -201,6 +295,9 @@ async function handleGenreClick(event) {
   const button = event.currentTarget;
   const genreId = button.dataset.genreId;
   const genreName = button.textContent?.trim() || "";
+
+  genreButtons.forEach((btn) => btn.classList.remove("active"));
+  button.classList.add("active");
 
   if (!genreId) {
     return;
@@ -337,6 +434,29 @@ function handleResultsGridClick(event) {
   }
 }
 
+function handleGenreRowsClick(event) {
+  const favoriteButton = event.target.closest(".carousel-favorite");
+  if (favoriteButton) {
+    const movieId = favoriteButton.dataset.movieId;
+    toggleFavorite(movieId);
+    return;
+  }
+
+  const card = event.target.closest(".carousel-card");
+  const movieId = card?.dataset.movieId;
+  if (movieId) {
+    navigateRoute(`#movie/${movieId}`);
+  }
+}
+
+function handleTrendingBannerClick(event) {
+  const card = event.target.closest(".trending-banner-card");
+  const movieId = card?.dataset.movieId;
+  if (movieId) {
+    navigateRoute(`#movie/${movieId}`);
+  }
+}
+
 function handleFavoritesGridClick(event) {
   const removeButton = event.target.closest(".favorite-remove");
   if (removeButton) {
@@ -446,7 +566,11 @@ function toggleFavorite(movieId) {
 
   UI.updateFavoriteState((id) => isFavorite(id));
   if (state.screen === "home") {
-    UI.renderHome(state.popularMovies);
+    state.genreRows = state.genreRows.map((row) => ({
+      ...row,
+      movies: row.movies.map((movie) => ({ ...movie, isFavorite: isFavorite(movie.id) }))
+    }));
+    UI.renderGenreRows(state.genreRows);
   }
   if (state.route === "favorites") {
     UI.renderFavorites(state.favorites);

@@ -77,10 +77,6 @@
     font-size: 2.5rem;
   }
 
-  .search-panel {
-    grid-template-columns: 1fr;
-  }
-
   .empty-state-card {
     flex-direction: column;
     text-align: center;

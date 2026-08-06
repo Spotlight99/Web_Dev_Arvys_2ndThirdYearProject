@@ -1,1 +1,1 @@
-export const TMDB_API_KEY = "YOUR_TMDB_API_KEY";
+export const LOCAL_TMDB_API_KEY = "YOUR_TMDB_API_KEY";

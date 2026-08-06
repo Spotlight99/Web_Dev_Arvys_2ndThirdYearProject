@@ -159,25 +159,70 @@ const UI = {
     this.showScreen("home");
   },
 
-  renderTrending(movie) {
-    const title = document.querySelector(".trending-title");
-    const overview = document.querySelector(".trending-overview");
-    const tags = document.querySelector(".trending-tags");
-    const card = document.querySelector(".trending-card");
-
-    if (!movie || !title || !overview || !tags || !card) {
+  renderGenreRows(rows) {
+    const container = document.querySelector(".genre-rows");
+    if (!container) {
       return;
     }
 
-    title.textContent = movie.title;
-    overview.textContent = movie.overview;
-    tags.innerHTML = movie.genreNames.map((name) => `<span>${name}</span>`).join("");
+    container.innerHTML = rows
+      .map((row) => {
+        const cards = row.movies
+          .map((movie) => {
+            const posterUrl = movie.posterPath ? `${IMAGE_BASE_URL}${movie.posterPath}` : "";
+            const favoriteClass = movie.isFavorite ? " favorite-active" : "";
+            return `
+              <article class="carousel-card" data-movie-id="${movie.id}">
+                <div class="carousel-poster" style="background-image: url('${posterUrl}');">
+                  <span class="carousel-score">${movie.rating}</span>
+                  <button class="carousel-favorite${favoriteClass}" type="button" data-movie-id="${movie.id}" aria-label="Toggle favorite">
+                    <i class="fa-${movie.isFavorite ? "solid" : "regular"} fa-heart"></i>
+                  </button>
+                </div>
+                <div class="carousel-card-body">
+                  <p class="carousel-title">${movie.title}</p>
+                  <p class="carousel-year">${movie.year}</p>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
 
-    if (movie.backdropPath) {
-      card.style.backgroundImage = `linear-gradient(180deg, rgba(37, 99, 235, 0.18), rgba(18, 36, 71, 0.95)), url('${IMAGE_BASE_URL}${movie.backdropPath}')`;
-      card.style.backgroundSize = "cover";
-      card.style.backgroundPosition = "center";
+        return `
+          <section class="carousel-row">
+            <div class="carousel-row-header">
+              <h2>${row.name}</h2>
+              <a class="carousel-all-link" href="#" data-genre-id="${row.genreId || ""}">All ></a>
+            </div>
+            <div class="carousel-track">${cards}</div>
+          </section>
+        `;
+      })
+      .join("");
+
+    this.showScreen("home");
+  },
+
+  renderTrendingBanner(movies) {
+    const track = document.querySelector(".trending-track");
+    if (!track || !movies?.length) {
+      return;
     }
+
+    track.innerHTML = movies
+      .map((movie) => {
+        const backdropUrl = movie.backdropPath ? `${IMAGE_BASE_URL}${movie.backdropPath}` : "";
+        return `
+          <article class="trending-banner-card" data-movie-id="${movie.id}" style="background-image: url('${backdropUrl}');">
+            <div class="trending-banner-overlay">
+              <span class="trending-banner-badge">HOT</span>
+              <h3 class="trending-banner-title">${movie.title}</h3>
+              <p class="trending-banner-meta">${movie.year} • ${movie.rating} ★ • ${movie.genreNames.join(", ")}</p>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
   },
 
   renderMovieDetails(movie, isFavorite) {

@@ -1,3 +1,5 @@
+import { LOCAL_TMDB_API_KEY } from "./config.js";
+
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 
@@ -14,17 +16,25 @@ const GENRE_MAP = {
   10749: "Romance"
 };
 
-function buildQueryParams(params = {}) {
-  const query = new URLSearchParams(params);
-  return query.toString();
-}
+const IS_LOCAL = ["localhost", "127.0.0.1"].includes(window.location.hostname);
 
 async function request(endpoint, params = {}) {
-  const pathParam = encodeURIComponent(endpoint);
-  const url = `/api/tmdb?path=${pathParam}&${buildQueryParams(params)}`;
-  const response = await fetch(url);
+  if (IS_LOCAL) {
+    if (!LOCAL_TMDB_API_KEY || LOCAL_TMDB_API_KEY === "YOUR_TMDB_API_KEY") {
+      throw new Error("Set your real key in js/config.js to test locally with Live Server.");
+    }
+    const query = new URLSearchParams({ api_key: LOCAL_TMDB_API_KEY, language: "en-US", ...params });
+    const response = await fetch(`${TMDB_BASE_URL}${endpoint}?${query.toString()}`);
+    if (!response.ok) {
+      throw new Error(`TMDB request failed: ${response.status} ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  const query = new URLSearchParams({ path: endpoint, ...params });
+  const response = await fetch(`/api/tmdb?${query.toString()}`);
   if (!response.ok) {
-    throw new Error(`TMDB proxy request failed: ${response.status} ${response.statusText}`);
+    throw new Error(`Proxy request failed: ${response.status} ${response.statusText}`);
   }
   return response.json();
 }
@@ -86,10 +96,9 @@ const MovieAPI = {
     return (data.results || []).map(normalizeMovie);
   },
 
-  async getTrendingMovie() {
+  async getTrendingMovies() {
     const data = await request("/trending/movie/day", {});
-    const results = (data.results || []).map(normalizeMovie);
-    return results[0] || null;
+    return (data.results || []).map(normalizeMovie).slice(0, 8);
   },
 
   async getMoviesByGenre(id) {

@@ -1,0 +1,23 @@
++.trending-section {
++.trending-track {
++.trending-banner-card {
++.trending-banner-overlay {
++.trending-banner-badge {
++.trending-banner-title {
++.trending-banner-meta {
++.movie-grid,
++.favorites-grid {
++.carousel-track {
++.carousel-card {
++.carousel-card-body {
+-.movie-grid,
+-.favorites-grid {
++  .carousel-card {
+   .movie-grid,
+   .favorites-grid {
++  .movie-card {
+ .movie-card {
+ .movie-poster {
+ .movie-card-body {
+ .movie-card-meta {
+ .movie-card-controls {
