@@ -1,6 +1,6 @@
-﻿# SpoteyTV – Premium Movie Discovery Platform
+﻿# SpotexTv – Premium Movie Discovery Platform
 
-SpoteyTV is a modern movie discovery web application powered by The Movie Database (TMDB). It allows users to search movies, explore trending titles, watch trailers, save favorites, and discover where movies are available to stream through a premium glassmorphism interface.
+SpotexTv is a modern movie discovery web application powered by The Movie Database (TMDB). It allows users to search movies, explore trending titles, watch trailers, save favorites, and discover where movies are available to stream through a premium glassmorphism interface.
 
 ## Features
 
