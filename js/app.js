@@ -36,11 +36,16 @@ const searchAgainButton = document.querySelector(".notfound-button");
 const detailsBackButtons = Array.from(document.querySelectorAll(".details-back"));
 const detailFavoriteButton = document.querySelector(".detail-favorite-button");
 const themeButton = document.querySelector(".theme-button");
+const TMDB_THUMBNAIL_BASE = "https://image.tmdb.org/t/p/w92";
 let suggestionDebounce = null;
 let suggestionSession = 0;
 let trendingAutoScrollTimer = null;
 let backToTopIdleTimer = null;
-let isSearchDocked = false;
+let navigationState = "top";
+let navigationTransitionTimer = null;
+let navigationScrollFrame = null;
+let scrollGestureUntil = 0;
+const SEARCH_DOCK_DURATION = 280;
 
 const state = {
   route: "home",
@@ -88,14 +93,15 @@ function attachEventHandlers() {
 
   if (backToTopButton) {
     backToTopButton.addEventListener("click", handleBackToTopClick);
-    window.addEventListener("scroll", handleScroll);
     ["pointerdown", "touchstart", "keydown"].forEach((eventName) => {
       window.addEventListener(eventName, revealBackToTopOnInteraction, { passive: true });
     });
   }
 
-  window.addEventListener("scroll", handleScrollDocking, { passive: true });
-  window.addEventListener("scroll", dismissSearchSuggestions, { passive: true });
+  window.addEventListener("scroll", handlePageScroll, { passive: true });
+  ["wheel", "touchmove"].forEach((eventName) => {
+    window.addEventListener(eventName, markScrollGesture, { passive: true });
+  });
 
   if (recentContainer) {
     recentContainer.addEventListener("click", handleRecentSearchClick);
@@ -203,29 +209,77 @@ function handleScrollDocking() {
   // The detail screen owns the cinematic hero; a docked search field would cut
   // across the poster and backdrop while the user is reading it.
   if (state.route === "details") {
-    if (isSearchDocked) {
-      topBannerEl.appendChild(searchBarShell);
-      searchBarShell.classList.remove("in-nav");
-      navShellEl.classList.remove("nav-search-active");
-      isSearchDocked = false;
-    }
+    setNavigationState("top");
     return;
   }
 
   const bannerHeight = topBannerEl.offsetHeight;
-  const shouldDock = window.scrollY > bannerHeight * 0.5;
+  const dockThreshold = bannerHeight * 0.5;
+  const releaseThreshold = bannerHeight * 0.42;
+  const threshold = navigationState === "top" ? dockThreshold : releaseThreshold;
+  setNavigationState(window.scrollY > threshold ? "docking" : "top");
+}
 
-  if (shouldDock && !isSearchDocked) {
-    navSearchSlot.appendChild(searchBarShell);
-    searchBarShell.classList.add("in-nav");
-    navShellEl.classList.add("nav-search-active");
-    isSearchDocked = true;
-  } else if (!shouldDock && isSearchDocked) {
+function setNavigationState(nextState) {
+  if (nextState === "docking" && navigationState === "sticky") {
+    return;
+  }
+
+  if (nextState === navigationState) {
+    return;
+  }
+
+  clearTimeout(navigationTransitionTimer);
+
+  // One state machine owns the complete handoff. Resetting the menu prevents
+  // a previously-open checkbox menu from surfacing during the dock animation.
+  const navToggle = document.querySelector("#nav-toggle");
+  if (navToggle) {
+    navToggle.checked = false;
+  }
+
+  navigationState = nextState;
+
+  if (nextState === "top") {
+    navShellEl.classList.remove("nav-search-docking", "nav-search-active");
     topBannerEl.appendChild(searchBarShell);
     searchBarShell.classList.remove("in-nav");
-    navShellEl.classList.remove("nav-search-active");
-    isSearchDocked = false;
+    return;
   }
+
+  if (nextState === "docking") {
+    navShellEl.classList.remove("nav-search-active");
+    navShellEl.classList.add("nav-search-docking");
+    navSearchSlot.appendChild(searchBarShell);
+    searchBarShell.classList.add("in-nav");
+    navigationTransitionTimer = setTimeout(() => {
+      if (navigationState !== "docking") {
+        return;
+      }
+      navigationState = "sticky";
+      navShellEl.classList.remove("nav-search-docking");
+      navShellEl.classList.add("nav-search-active");
+    }, SEARCH_DOCK_DURATION);
+  }
+}
+
+function handlePageScroll() {
+  if (navigationScrollFrame) {
+    return;
+  }
+
+  navigationScrollFrame = window.requestAnimationFrame(() => {
+    navigationScrollFrame = null;
+    handleScrollDocking();
+    handleScroll();
+    // Mobile browsers may scroll the viewport while opening the keyboard. Only
+    // blur after a real wheel/touch scroll gesture, never for that layout shift.
+    dismissSearchSuggestions(performance.now() < scrollGestureUntil);
+  });
+}
+
+function markScrollGesture() {
+  scrollGestureUntil = performance.now() + 250;
 }
 
 function resolveRoute(hash) {
@@ -265,7 +319,7 @@ function handleRouteChange() {
 }
 
 async function loadPopularMovies() {
-  UI.showLoading();
+  UI.showLoading("home");
   try {
     const rows = await Promise.all(
       HOME_ROWS.map(async (row) => {
@@ -345,7 +399,7 @@ async function openGenre(genreId, genreName) {
   }
 
   state.searchQuery = genreName || "Popular";
-  UI.showLoading();
+  UI.showLoading("search");
 
   try {
     const movies = await MovieAPI.getPopularMovies();
@@ -407,11 +461,13 @@ function renderSuggestions(movies) {
 
   searchSuggestions.innerHTML = movies
     .map(
-      (movie) =>
-        `<div class="search-suggestion-item" data-movie-id="${movie.id}" data-title="${movie.title}">
-          <span>${movie.title}</span>
-          <span class="suggestion-year">(${movie.year || ""})</span>
+      (movie) => {
+        const poster = movie.posterPath ? `${TMDB_THUMBNAIL_BASE}${movie.posterPath}` : "";
+        return `<div class="search-suggestion-item" data-movie-id="${movie.id}" data-title="${movie.title}">
+          ${poster ? `<img class="suggestion-poster" src="${poster}" alt="" loading="lazy">` : "<span class=\"suggestion-poster suggestion-poster-fallback\" aria-hidden=\"true\"><i class=\"fa-solid fa-film\"></i></span>"}
+          <span class="suggestion-copy"><strong>${movie.title}</strong><span class="suggestion-year">Movie • ${movie.year || "N/A"}</span></span>
         </div>`
+      }
     )
     .join("");
 
@@ -427,14 +483,14 @@ function hideSuggestions() {
   searchSuggestions.innerHTML = "";
 }
 
-function dismissSearchSuggestions() {
+function dismissSearchSuggestions(shouldBlurInput = true) {
   suggestionSession += 1;
   if (suggestionDebounce) {
     clearTimeout(suggestionDebounce);
     suggestionDebounce = null;
   }
   hideSuggestions();
-  if (document.activeElement === searchInput) {
+  if (shouldBlurInput && document.activeElement === searchInput) {
     searchInput.blur();
   }
 }
@@ -573,7 +629,7 @@ function handleFavoritesGridClick(event) {
 
 async function performSearch(query) {
   state.searchQuery = query.trim();
-  UI.showLoading();
+  UI.showLoading("search");
 
   try {
     const movies = await MovieAPI.searchMovies(state.searchQuery);
@@ -596,7 +652,7 @@ async function performSearch(query) {
 
 async function performGenreSearch(genreId, genreName) {
   state.searchQuery = genreName;
-  UI.showLoading();
+  UI.showLoading("search");
 
   try {
     const movies = await MovieAPI.getMoviesByGenre(genreId);
@@ -618,7 +674,7 @@ async function performGenreSearch(genreId, genreName) {
 }
 
 async function loadMovieDetails(movieId) {
-  UI.showLoading();
+  UI.showLoading("details");
   state.currentMovie = null;
 
   try {
@@ -631,6 +687,13 @@ async function loadMovieDetails(movieId) {
 
     state.currentMovie = movie;
     UI.renderMovieDetails(movie, isFavorite(movie.id));
+    const [trailerResult, providersResult] = await Promise.allSettled([
+      MovieAPI.getMovieTrailer(movieId),
+      MovieAPI.getWatchProviders(movieId)
+    ]);
+    if (state.currentMovie?.id !== movie.id) return;
+    UI.renderTrailer(trailerResult.status === "fulfilled" ? trailerResult.value : null);
+    UI.renderWatchProviders(providersResult.status === "fulfilled" ? providersResult.value : null);
   } catch (error) {
     state.screen = "notfound";
     navigateRoute("#home");

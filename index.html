@@ -110,13 +110,7 @@
         </section>
 
         <section id="loading" class="hidden">
-          <div class="container loading-panel glass-card">
-            <div class="spinner"></div>
-            <div>
-              <h2>Loading movies...</h2>
-              <p>Searching TMDB for the latest picks.</p>
-            </div>
-          </div>
+          <div class="container loading-panel" aria-live="polite"></div>
         </section>
 
         <section id="results" class="hidden">
@@ -148,9 +142,14 @@
                 <div class="detail-genres-block">
                   <span class="detail-genres"></span>
                 </div>
-                <a class="detail-trailer-link" target="_blank" rel="noopener noreferrer">
-                  <i class="fa-solid fa-play" aria-hidden="true"></i><span>Watch Trailer</span>
-                </a>
+                <section class="detail-trailer hidden" aria-labelledby="trailer-heading">
+                  <h2 id="trailer-heading">Trailer</h2>
+                  <div class="detail-trailer-content"></div>
+                </section>
+                <section class="detail-watch-providers hidden" aria-labelledby="watch-providers-heading">
+                  <h2 id="watch-providers-heading">Where to Watch</h2>
+                  <div class="detail-watch-providers-content"></div>
+                </section>
                 <section class="detail-synopsis" aria-labelledby="synopsis-heading">
                   <h2 id="synopsis-heading">Synopsis</h2>
                   <p class="detail-overview"></p>

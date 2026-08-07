@@ -100,6 +100,26 @@ const MovieAPI = {
     };
   },
 
+  async getMovieTrailer(id) {
+    if (!id) return null;
+    const data = await request(`/movie/${id}/videos`);
+    const videos = data.results || [];
+    const trailer = videos.find((video) => video.site === "YouTube" && video.type === "Trailer" && video.official)
+      || videos.find((video) => video.site === "YouTube" && video.type === "Trailer");
+    return trailer ? { key: trailer.key, name: trailer.name || "Official trailer" } : null;
+  },
+
+  async getWatchProviders(id) {
+    if (!id) return null;
+    const data = await request(`/movie/${id}/watch/providers`);
+    const regions = data.results || {};
+    const browserRegion = navigator.language.split("-")[1]?.toUpperCase();
+    const providers = regions[browserRegion] || regions.US || regions[Object.keys(regions)[0]];
+    if (!providers) return null;
+    const normalize = (items = []) => items.map((provider) => ({ name: provider.provider_name, logoPath: provider.logo_path }));
+    return { streaming: normalize(providers.flatrate), rent: normalize(providers.rent), buy: normalize(providers.buy) };
+  },
+
   async getPopularMovies() {
     const data = await request("/movie/popular", { page: 1 });
     return (data.results || []).map(normalizeMovie);

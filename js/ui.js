@@ -29,6 +29,10 @@ const UI = {
       detailFacts: document.querySelector(".detail-facts"),
       detailCastList: document.querySelector(".detail-cast-list"),
       detailCast: document.querySelector(".detail-cast"),
+      detailTrailer: document.querySelector(".detail-trailer"),
+      detailTrailerContent: document.querySelector(".detail-trailer-content"),
+      detailWatchProviders: document.querySelector(".detail-watch-providers"),
+      detailWatchProvidersContent: document.querySelector(".detail-watch-providers-content"),
       detailFavoriteButton: document.querySelector(".detail-favorite-button"),
       navLinks: Array.from(document.querySelectorAll(".nav-link")),
       themeButton: document.querySelector(".theme-button"),
@@ -111,7 +115,8 @@ const UI = {
           : String(movie.genres || "").split(",").map((genre) => genre.trim()).filter(Boolean);
         return `
           <article class="movie-card" data-movie-id="${movie.id}">
-            <div class="movie-poster" style="background-image: url('${posterUrl}');">
+            <div class="movie-poster favorite-poster">
+              ${posterUrl ? `<img class="favorite-poster-image" src="${posterUrl}" alt="${movie.title} poster" loading="lazy">` : "<span class=\"favorite-poster-fallback\" aria-hidden=\"true\"><i class=\"fa-solid fa-film\"></i></span>"}
               <span class="movie-score"><i class="fa-solid fa-star" aria-hidden="true"></i>${movie.rating}</span>
             </div>
             <div class="movie-card-body">
@@ -305,15 +310,47 @@ const UI = {
         return `<article class="detail-cast-member"><div class="detail-cast-avatar">${avatar}</div><strong>${person.name}</strong>${person.character ? `<span>${person.character}</span>` : ""}</article>`;
       }).join("");
     }
+    if (this.elements.detailTrailer) {
+      this.elements.detailTrailer.classList.add("hidden");
+      this.elements.detailTrailerContent.innerHTML = "";
+    }
+    if (this.elements.detailWatchProviders) {
+      this.elements.detailWatchProviders.classList.add("hidden");
+      this.elements.detailWatchProvidersContent.innerHTML = "";
+    }
     detailFavoriteButton.dataset.movieId = movie.id;
     detailFavoriteButton.setAttribute("aria-label", isFavorite ? "Remove from favorites" : "Add to favorites");
     document.querySelectorAll(".details-back").forEach((button) => button.setAttribute("aria-label", "Back to home"));
-    const trailerLink = document.querySelector(".detail-trailer-link");
-    trailerLink.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${movie.title} official trailer`)}`;
-    trailerLink.setAttribute("aria-label", `Watch the trailer for ${movie.title} on YouTube`);
     detailFavoriteButton.innerHTML = `${isFavorite ? "<i class=\"fa-solid fa-heart\"></i>" : "<i class=\"fa-regular fa-heart\"></i>"} ${isFavorite ? "Remove Favorite" : "Add to Favorites"}`;
 
     this.showScreen("details");
+  },
+
+  renderTrailer(trailer) {
+    const { detailTrailer, detailTrailerContent } = this.elements;
+    if (!detailTrailer || !detailTrailerContent) {
+      return;
+    }
+    detailTrailer.classList.remove("hidden");
+    detailTrailerContent.innerHTML = trailer?.key
+      ? `<iframe src="https://www.youtube-nocookie.com/embed/${trailer.key}" title="${trailer.name}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
+      : "<p class=\"detail-unavailable\">No trailer available.</p>";
+  },
+
+  renderWatchProviders(providers) {
+    const { detailWatchProviders, detailWatchProvidersContent } = this.elements;
+    if (!detailWatchProviders || !detailWatchProvidersContent) {
+      return;
+    }
+    const groups = [
+      ["Streaming", providers?.streaming],
+      ["Rent", providers?.rent],
+      ["Buy", providers?.buy]
+    ].filter(([, items]) => items?.length);
+    detailWatchProviders.classList.remove("hidden");
+    detailWatchProvidersContent.innerHTML = groups.length
+      ? groups.map(([label, items]) => `<div class="provider-group"><h3>${label}</h3><div>${items.map((provider) => `<img src="${IMAGE_BASE_URL}${provider.logoPath}" alt="${provider.name}" loading="lazy" title="${provider.name}">`).join("")}</div></div>`).join("")
+      : "<p class=\"detail-unavailable\">Watch provider information unavailable in your region.</p>";
   },
 
   updateFavoriteState(isFavoriteCallback = () => false) {
@@ -361,7 +398,14 @@ const UI = {
     });
   },
 
-  showLoading() {
+  showLoading(type = "home") {
+    const loading = this.elements.loading;
+    const homeRows = Array.from({ length: 3 }, () => `<div class="skeleton-row"><span class="skeleton-line skeleton-heading"></span><div class="skeleton-card-row">${"<span class=\"skeleton-card skeleton-poster\"></span>".repeat(6)}</div></div>`).join("");
+    const cards = `<div class="skeleton-grid">${"<span class=\"skeleton-card\"><i></i><b></b><b></b><b></b></span>".repeat(8)}</div>`;
+    const detail = `<div class="skeleton-detail"><span class="skeleton-card skeleton-detail-poster"></span><div>${"<span class=\"skeleton-line\"></span>".repeat(5)}<span class="skeleton-button"></span><span class="skeleton-button"></span></div></div>`;
+    if (loading) {
+      loading.innerHTML = type === "details" ? detail : type === "home" ? `<div class="skeleton-home">${homeRows}</div>` : cards;
+    }
     this.showScreen("loading");
   },
 
