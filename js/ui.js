@@ -1,7 +1,3 @@
-/* ui.js
-   UI rendering helpers for SpotexTV.
-   Controls screen visibility and renders TMDB result content. */
-
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
 const UI = {

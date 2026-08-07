@@ -205,9 +205,6 @@ function handleScrollDocking() {
   if (!navShellEl || !navSearchSlot || !searchBarShell || !topBannerEl) {
     return;
   }
-
-  // The detail screen owns the cinematic hero; a docked search field would cut
-  // across the poster and backdrop while the user is reading it.
   if (state.route === "details") {
     setNavigationState("top");
     return;
@@ -230,9 +227,6 @@ function setNavigationState(nextState) {
   }
 
   clearTimeout(navigationTransitionTimer);
-
-  // One state machine owns the complete handoff. Resetting the menu prevents
-  // a previously-open checkbox menu from surfacing during the dock animation.
   const navToggle = document.querySelector("#nav-toggle");
   if (navToggle) {
     navToggle.checked = false;
@@ -272,8 +266,6 @@ function handlePageScroll() {
     navigationScrollFrame = null;
     handleScrollDocking();
     handleScroll();
-    // Mobile browsers may scroll the viewport while opening the keyboard. Only
-    // blur after a real wheel/touch scroll gesture, never for that layout shift.
     dismissSearchSuggestions(performance.now() < scrollGestureUntil);
   });
 }
@@ -348,7 +340,6 @@ async function loadTrendingMovie() {
     UI.renderTrendingBanner(movies);
     startTrendingAutoScroll();
   } catch (error) {
-    // leave the trending-track empty if this fails, the rest of the page still works
   }
 }
 

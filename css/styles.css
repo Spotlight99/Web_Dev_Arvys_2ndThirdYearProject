@@ -1,4 +1,3 @@
-﻿/* SpotexTV Phase 1 Home UI */
 * {
   margin: 0;
   padding: 0;
@@ -1084,7 +1083,6 @@ button {
   justify-self: start;
 }
 
-/* Streaming-style presentation for the details screen only. */
 .detail-page {
   --detail-backdrop: none;
   position: relative;
@@ -1188,7 +1186,6 @@ button {
 
 @keyframes detail-card-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Details proportion and hierarchy refinements. */
 .detail-page::before,
 .detail-page::after {
   height: clamp(460px, 62vh, 720px);
@@ -1267,7 +1264,6 @@ button {
 
 .detail-trailer-link:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.18); }
 
-/* Compact streaming-detail card hierarchy. */
 .detail-page {
   grid-template-columns: minmax(190px, 220px) minmax(0, 680px);
   justify-content: center;
@@ -1344,7 +1340,6 @@ button {
 
 .detail-favorite-button:hover { transform: translateY(-2px); background: rgba(239, 68, 68, 0.28); }
 
-/* Cinematic single-column details composition. */
 .detail-page {
   grid-template-columns: minmax(0, 1fr);
   width: min(100% - 2rem, 1000px);
@@ -1400,7 +1395,6 @@ button {
 
 .detail-meta-row { margin-top: 0.7rem; }
 
-/* Reference composition: poster and glass detail panel overlap the hero together. */
 .detail-page {
   display: block;
   width: min(100% - 2rem, 1120px);
@@ -1455,7 +1449,6 @@ button {
 
 .detail-favorite-button { margin-top: auto; }
 
-/* Final movie-detail composition: a single cinematic hero and connected panel. */
 #details {
   animation: detail-page-in 280ms ease both;
 }
@@ -1548,7 +1541,6 @@ button {
 
 @keyframes detail-page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Desktop-only cinema layout. Tablet and mobile rules intentionally remain unchanged. */
 @media (min-width: 1200px) {
   .detail-page {
     width: 100%;
@@ -1609,9 +1601,6 @@ button {
   .detail-cast-member > span { font-size: 0.75rem; }
   .detail-favorite-button { min-height: 4.4rem; margin-top: 0.75rem; }
 
-  /* Let the details panel use the cinema canvas instead of sharing a narrow row
-     with the poster. The poster stays anchored to the hero while the panel
-     overlaps the transition into the content area. */
   .detail-body {
     grid-template-columns: minmax(270px, 300px) minmax(0, 1fr);
     margin-top: clamp(145px, 12vw, 205px);
@@ -1772,7 +1761,6 @@ button {
   }
 }
 
-/* One fluid movie-details composition for every viewport. */
 #details {
   animation: detail-page-in 280ms ease both;
 }
@@ -1871,7 +1859,6 @@ button {
 .detail-cast-member strong { font-size: clamp(0.74rem, 1vw, 0.85rem); }
 .detail-cast-member > span { font-size: clamp(0.68rem, 0.9vw, 0.75rem); }
 
-/* Premium vertical cards for the search-results grid only. */
 #results .movie-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(1rem, 2vw, 1.5rem);
@@ -1967,7 +1954,6 @@ button {
 
 #results .movie-card:focus-within { border-color: rgba(96, 165, 250, 0.6); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2), 0 24px 52px rgba(0, 0, 0, 0.38); }
 
-/* Personal-library cards for Favorites. */
 #favorites .favorites-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(1rem, 2vw, 1.6rem);
@@ -2064,7 +2050,6 @@ button {
 
 #favorites .movie-card:focus-within { border-color: rgba(96, 165, 250, 0.6); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2), 0 24px 52px rgba(0, 0, 0, 0.38); }
 
-/* Scale card content from the card's available inline space, not the viewport. */
 #results .movie-card,
 #favorites .movie-card {
   container-type: inline-size;
@@ -2146,7 +2131,6 @@ button {
   font-size: clamp(0.62rem, 4cqi, 0.84rem);
 }
 
-/* Final loading and details enhancements. */
 .loading-panel { width: 100%; padding: clamp(1rem, 3vw, 2rem); }
 .skeleton-home, .skeleton-row, .skeleton-detail { display: grid; gap: 1rem; }
 .skeleton-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.75rem, 2vw, 1.4rem); }
